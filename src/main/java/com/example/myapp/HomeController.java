@@ -8,7 +8,7 @@ public class HomeController {
 	
 	@GetMapping("/")
 	public String home(Model model) {
-		model.addAttribute("message","Welcome");
+		model.addAttribute("message","Hello KBS I'm Jun");
 		return "home";
 	}
 
