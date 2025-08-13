@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{include/header :: header}"></head>
+<body>
+<div th:replace="~{include/body-header :: bodyHeader}"></div>
+
+<div class="container">
+  <div class="pg-opt">
+    <div class="row">
+      <div class="col-md-6 pc">
+        <h2>[[#{SEARCH_RESULT}]]
+          <small th:if="${name==null}" style="color:red;">[[#{LOGIN}]]</small>
+        </h2>
+      </div>
+      <div class="col-md-6">
+        <ol class="breadcrumb">
+          <li>[[#{BOARD}]]</li>
+          <li class="active">[[#{BOARD_LIST}]]</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <span th:text="${message}">message</span>
+
+  <div class="content">
+    <form th:action="@{/board/search/1}" method="get">
+      <div class="pull-right" style="margin-bottom:5px;">
+        <div class="col-xs-9">
+          <input type="text" name="keyword" class="form-control" th:value="${keyword}">
+        </div>
+        <input type="submit" class="btn btn-warning" th:value="#{SEARCH}">
+      </div>
+    </form>
+
+    <table class="table table-hover table-bordered">
+      <thead>
+        <tr>
+          <td>[[#{CATEGORY}]]</td>
+          <td>[[#{BOARD_ID}]]</td>
+          <td class="pc">[[#{WRITER}]]</td>
+          <td>[[#{SUBJECT}]]</td>
+          <td class="pc">[[#{WRITE_DATE}]]</td>
+          <td class="pc">[[#{READ_COUNT}]]</td>
+        </tr>
+      </thead>
+
+      <tr th:each="board : ${boardList}">
+        <td th:text="${board.categoryId}"></td>
+        <td th:text="${board.boardId}"></td>
+        <td class="pc" th:text="${board.writer}"></td>
+        <td>
+          <!-- 상세 링크: /board/{boardId}/{page} 규칙에 맞춰 1페이지로 연결 -->
+          <a th:href="@{/board/{id}/1(id=${board.boardId})}"
+             th:text="${board.title}"></a>
+        </td>
+        <td class="pc" th:text="${#dates.format(board.writeDate,'yyyy-MM-dd')}"></td>
+        <td class="pc" th:text="${board.readCount}"></td>
+      </tr>
+    </table>
+
+    <table class="table">
+      <tr>
+        <td align="left">
+          <!-- 검색용 페이징 조각 포함 -->
+          <div th:replace="~{include/search-paging :: searchPaging}"></div>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<footer th:replace="~{include/footer :: footer}"></footer>
+</body>
+</html>
