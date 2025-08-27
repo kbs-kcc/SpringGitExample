@@ -75,6 +75,8 @@ public class BoardController {
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         return "board/list";
+        
+        
     }
 
     @GetMapping("/board/cat/{categoryId}")
