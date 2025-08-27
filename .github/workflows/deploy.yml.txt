@@ -1,0 +1,65 @@
+name: CI/CD Workflow for SpringGitExample
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      # 1. 프로젝트 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. JDK 설정 및 Maven 빌드
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build project with Maven
+        run: mvn clean package
+
+      # 3. 기존 Docker 컨테이너 중지 및 삭제
+      - name: Stop and remove old container
+        shell: powershell
+        run: |
+          $containerName = "${{ secrets.DOCKER_CONTAINER_NAME }}"
+          $existingContainer = docker ps -a --filter "name=$containerName" --format "{{.Names}}"
+          if ($existingContainer -eq $containerName) {
+            Write-Host "Stopping and removing container: $containerName"
+            docker stop $containerName
+            docker rm $containerName
+          } else {
+            Write-Host "No container named $containerName found."
+          }
+
+      # 4. 기존 Docker 이미지 삭제
+      - name: Remove old Docker image
+        shell: powershell
+        run: |
+          $imageName = "${{ secrets.DOCKER_IMAGE_NAME }}"
+          try {
+            Write-Host "Attempting to remove image: $imageName"
+            docker rmi -f $imageName
+            Write-Host "Image $imageName removed successfully."
+          } catch {
+            Write-Host "Failed to remove image: $imageName"
+            Write-Host "Error: $_"
+          }
+
+      # 5. Docker 이미지 빌드
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_IMAGE_NAME }} .
+
+      # 6. 새 Docker 컨테이너 실행
+      - name: Run new Docker container
+        run: docker run -d --name ${{ secrets.DOCKER_CONTAINER_NAME }} -p 8080:8080 ${{ secrets.DOCKER_IMAGE_NAME }}
+
+      # 7. 컨테이너 상태 확인
+      - name: Check running containers
+        run: docker ps
