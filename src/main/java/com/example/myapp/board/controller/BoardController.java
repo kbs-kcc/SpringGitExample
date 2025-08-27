@@ -136,6 +136,8 @@ public class BoardController {
             redirectAttrs.addFlashAttribute("message", e.getMessage());
         }
         return "redirect:/board/cat/" + board.getCategoryId();
+        
+        
     }
     
     @GetMapping("/file/{fileId}")
